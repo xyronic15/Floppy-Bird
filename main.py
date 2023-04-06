@@ -20,10 +20,13 @@ scale_y = WINDOW_HEIGHT/VIRTUAL_HEIGHT
 FPS = 60
 
 # Define our fonts
-small_font = pygame.font.Font('fonts/font.ttf', 8)
-medium_font = pygame.font.Font('fonts/flappy.ttf', 14)
-flappy_font = pygame.font.Font('fonts/flappy.ttf', 28)
+small_font = pygame.font.Font('fonts/font.ttf', 40)
+medium_font = pygame.font.Font('fonts/flappy.ttf', 75)
+flappy_font = pygame.font.Font('fonts/flappy.ttf', 100)
 huge_font = pygame.font.Font('fonts/flappy.ttf', 56)
+
+# Define colors
+WHITE = (255, 255, 255)
 
 # load the background and ground
 background = pygame.transform.scale(pygame.image.load('imgs/background.png'), (1157*scale_x, 288*scale_y))
@@ -68,11 +71,47 @@ def run(screen, clock):
             ground_scroll = ground_scroll - GROUND_SCROLL_SPEED
             if abs(ground_scroll) > (ground.get_width() - WINDOW_WIDTH):
                 ground_scroll=0
+        
+        # use if statements to handle gamestate
+        # main emnu state
+        if gamestate == 'menu':
+            # Show title and instructions
+            title = flappy_font.render("Floppy Bird", True, WHITE)
+            title_rect = title.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 150))
+            screen.blit(title, title_rect)
+
+            start = small_font.render("Press \"enter\" to play", True, WHITE)
+            start_rect = start.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 70))
+            screen.blit(start, start_rect)
+
+            instr = small_font.render("Use the spacebar to jump", True, WHITE)
+            instr_rect = instr.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 10))
+            screen.blit(instr, instr_rect)
+
+            p_msg = small_font.render("Press \"P\" to pause", True, WHITE)
+            p_msg_rect = p_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 85))
+            screen.blit(p_msg, p_msg_rect)
+
+            quit_msg = small_font.render("Press \"ESC\" to quit", True, WHITE)
+            quit_msg_rect = quit_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 150))
+            screen.blit(quit_msg, quit_msg_rect)
+
+            # check if the enter key is pressed and change state to play
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_RETURN:
+                        gamestate = 'play'
+        
+
+        # elif gamestate == 'play'
 
         # TBR -> quit event
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 running = False
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    running = False
 
 def main():
     """Function loads the pygame display and sets the clock"""
