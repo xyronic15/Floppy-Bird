@@ -2,6 +2,7 @@
 
 import sys
 import pygame
+from pygame import mixer
 import random
 from bird import Bird
 from pipe import Pipe
@@ -40,6 +41,16 @@ ground = pygame.transform.scale(pygame.image.load('imgs/ground.png'), (2200*scal
 gold = pygame.transform.scale(pygame.image.load('imgs/gold.png'), (26*scale_x, 30*scale_y))
 silver = pygame.transform.scale(pygame.image.load('imgs/silver.png'), (26*scale_x, 30*scale_y))
 bronze = pygame.transform.scale(pygame.image.load('imgs/bronze.png'), (26*scale_x, 30*scale_y))
+
+# load sounds/music
+mixer.init()
+mixer.music.load('sounds/marios_way.mp3')
+mixer.music.play(-1)
+jump_fx = mixer.Sound("sounds/jump.wav")
+explosion_fx = mixer.Sound("sounds/explosion.wav")
+hurt_fx = mixer.Sound("sounds/hurt.wav")
+score_fx = mixer.Sound("sounds/score.wav")
+pause_fx = mixer.Sound("sounds/pause.wav")
 
 # Define our game variables
 BACKGROUND_SCROLL_SPEED = 4
@@ -215,12 +226,14 @@ def run(screen, clock):
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p:
+                        mixer.Sound.play(pause_fx)
                         gamestate = 'paused'
                     if event.key == pygame.K_ESCAPE:
                         running = False
                         print('quit')
                     if event.key == pygame.K_SPACE:
                         bird_group.sprites()[0].jump()
+                        mixer.Sound.play(jump_fx)
                 if event.type == pygame.QUIT:
                     running = False
                     print('quit')
@@ -233,10 +246,13 @@ def run(screen, clock):
                     if bird_group.sprites()[0].rect.left > pipe_group.sprites()[0].rect.right:
                         score += 1
                         passed_pipe = False
+                        mixer.Sound.play(score_fx)
             
             # set gamestate to gameover and save score if collision or hit top or bottom
             if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or bird_group.sprites()[0].rect.top < 0 or bird_group.sprites()[0].rect.bottom > WINDOW_HEIGHT-(32*scale_y):
                 save_score(score)
+                mixer.Sound.play(explosion_fx)
+                mixer.Sound.play(hurt_fx)
                 gamestate='gameover'
 
             # generate new pipes
@@ -261,6 +277,7 @@ def run(screen, clock):
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_p:
+                        mixer.Sound.play(pause_fx)
                         gamestate = 'play'
                     if event.key == pygame.K_ESCAPE:
                         running = False
