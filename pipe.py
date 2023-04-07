@@ -23,10 +23,10 @@ class Pipe(pygame.sprite.Sprite):
         if orientation == 1:
             # flip the image and then set it's coordinates
             self.image = pygame.transform.flip(self.image, False, True)
-            self.rect.bottomleft = [STARTING, y - (int(random.randint(150, 250) / 2))]
+            self.rect.bottomleft = [STARTING, y - (int(random.randint(150, 300) / 2))]
 
         if orientation == -1:
-            self.rect.topleft = [STARTING, y + (int(random.randint(150, 250) / 2))]
+            self.rect.topleft = [STARTING, y + (int(random.randint(150, 300) / 2))]
     
     def update(self):
         """Called to update the position of the pipe during the play state"""

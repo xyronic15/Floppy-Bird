@@ -5,6 +5,7 @@ import pygame
 import random
 from bird import Bird
 from pipe import Pipe
+from logger import *
 
 # intialize pygame
 pygame.init()
@@ -53,15 +54,15 @@ def disp_results(screen, score):
     """Function will check the person's score and display the results with the corresponding medal"""
 
     # check score
-    if score >=  30:
+    if score >=  20:
         medal = pygame.transform.scale(gold, (26*scale_x*4, 30*scale_y*4))
         medal_rect = medal.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 75))
         screen.blit(medal, medal_rect)
-    elif score >=  20:
+    elif score < 20 and score >= 10:
         medal = pygame.transform.scale(silver, (26*scale_x*4, 30*scale_y*4))
         medal_rect = medal.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 75))
         screen.blit(medal, medal_rect)
-    else:
+    elif score < 10:
         medal = pygame.transform.scale(bronze, (26*scale_x*4, 30*scale_y*4))
         medal_rect = medal.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 75))
         screen.blit(medal, medal_rect)
@@ -70,6 +71,48 @@ def disp_results(screen, score):
     value = medium_font.render(f"You scored {score} points!", True, WHITE)
     value_rect = value.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/3) * 2 + 30))
     screen.blit(value, value_rect)    
+
+def disp_high_scores(screen):
+    """Function calls logger function and reads top three scores from scores.csv"""
+
+    # read from csv
+    data = read_top_three()
+
+    # display the error msg if a string is given
+    if isinstance(data, str):
+        msg = medium_font.render(data, True, WHITE)
+        msg_rect = msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2)))
+        screen.blit(msg, msg_rect)
+    
+    # display the scores with their corresponding medals if list is given
+    else:
+        for i in range(len(data)):
+            msg = medium_font.render(f"{i+1}    {data[i]['score']}", True, WHITE)
+            msg_rect = msg.get_rect(center=((WINDOW_WIDTH/2) - 120, (WINDOW_HEIGHT/2) - 90 + (90*i)))
+            screen.blit(msg, msg_rect)
+
+            # show corresponding medal
+            if data[i]['medal'] == 'gold':
+                medal = gold
+                medal_rect = medal.get_rect(center=((WINDOW_WIDTH/2) + 190, (WINDOW_HEIGHT/2) - 90 + (90*i)))
+            elif data[i]['medal'] == 'silver':
+                medal = silver
+                medal_rect = medal.get_rect(center=((WINDOW_WIDTH/2) + 190, (WINDOW_HEIGHT/2) - 90 + (90*i)))
+            else:
+                medal = bronze
+                medal_rect = medal.get_rect(center=((WINDOW_WIDTH/2) + 190, (WINDOW_HEIGHT/2) - 90 + (90*i)))
+            screen.blit(medal, medal_rect)
+
+def save_score(score):
+    """Function will check the person's score and store the results with the corresponding medal"""
+
+    # check score
+    if score >=  20:
+        log_score(score, "gold")
+    elif score < 20 and score >= 10:
+        log_score(score, "silver")
+    elif score < 10:
+        log_score(score, "bronze")
 
 def run(screen, clock):
     """ This is where the endless while loop with the will run.
@@ -128,7 +171,7 @@ def run(screen, clock):
         if gamestate == 'menu':
             # Show title and instructions
             title = flappy_font.render("Floppy Bird", True, WHITE)
-            title_rect = title.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 150))
+            title_rect = title.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 180))
             screen.blit(title, title_rect)
 
             start = small_font.render("Press \"enter\" to play", True, WHITE)
@@ -136,15 +179,19 @@ def run(screen, clock):
             screen.blit(start, start_rect)
 
             instr = small_font.render("Use the spacebar to jump", True, WHITE)
-            instr_rect = instr.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 10))
+            instr_rect = instr.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 10))
             screen.blit(instr, instr_rect)
 
             p_msg = small_font.render("Press \"P\" to pause", True, WHITE)
-            p_msg_rect = p_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 85))
+            p_msg_rect = p_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 50))
             screen.blit(p_msg, p_msg_rect)
 
+            h_msg = small_font.render("Press \"H\" for high scores", True, WHITE)
+            h_msg_rect = h_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 110))
+            screen.blit(h_msg, h_msg_rect)
+
             quit_msg = small_font.render("Press \"ESC\" to quit", True, WHITE)
-            quit_msg_rect = quit_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 150))
+            quit_msg_rect = quit_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 170))
             screen.blit(quit_msg, quit_msg_rect)
 
             # check if the enter key is pressed and change state to play
@@ -152,6 +199,8 @@ def run(screen, clock):
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_RETURN:
                         gamestate = 'play'
+                    if event.key == pygame.K_h:
+                        gamestate = 'high_scores'
                     if event.key == pygame.K_ESCAPE:
                         running = False
                         print('quit')
@@ -185,8 +234,9 @@ def run(screen, clock):
                         score += 1
                         passed_pipe = False
             
-            # set gamestate to gameover if collision or hit top or bottom
+            # set gamestate to gameover and save score if collision or hit top or bottom
             if pygame.sprite.groupcollide(bird_group, pipe_group, False, False) or bird_group.sprites()[0].rect.top < 0 or bird_group.sprites()[0].rect.bottom > WINDOW_HEIGHT-(32*scale_y):
+                save_score(score)
                 gamestate='gameover'
 
             # generate new pipes
@@ -265,7 +315,40 @@ def run(screen, clock):
 
             # stop the background moving backgrounds
             scrolling = False
+        
+        # high scores state
+        elif gamestate == 'high_scores':
+            
+            # check for any inputs and go back if b is pressed
+            for event in pygame.event.get():
+                if event.type == pygame.KEYDOWN:
+                    if event.key == pygame.K_b:
+                        running = False
+                        run(screen, clock)
+                    if event.key == pygame.K_ESCAPE:
+                        running = False
+                        print('quit')
+                if event.type == pygame.QUIT:
+                    running = False
+                    print('quit')
+            
+            # dim the background
+            s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
+            s.set_alpha(128)
+            s.fill((0,0,0))   
+            screen.blit(s, [0,0])
 
+            # display the high scores
+            disp_high_scores(screen)
+
+            # show title and instructions
+            title = medium_font.render("High Scores", True, WHITE)
+            title_rect = title.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 230))
+            screen.blit(title, title_rect)
+
+            b_msg = small_font.render("Press \"B\" to go back", True, WHITE)
+            b_msg_rect = b_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 200))
+            screen.blit(b_msg, b_msg_rect)
 
 def main():
     """Function loads the pygame display and sets the clock"""
@@ -277,7 +360,7 @@ def main():
     # Create a clock
     clock = pygame.time.Clock()
 
-    # Call the run function
+    # Call the run function to run the game
     run(screen, clock)
     
 
