@@ -185,11 +185,11 @@ def run(screen, clock):
             title_rect = title.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 180))
             screen.blit(title, title_rect)
 
-            start = small_font.render("Press \"enter\" to play", True, WHITE)
+            start = small_font.render("Press space to play", True, WHITE)
             start_rect = start.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 70))
             screen.blit(start, start_rect)
 
-            instr = small_font.render("Use the spacebar to jump", True, WHITE)
+            instr = small_font.render("Use space to jump", True, WHITE)
             instr_rect = instr.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 10))
             screen.blit(instr, instr_rect)
 
@@ -208,7 +208,7 @@ def run(screen, clock):
             # check if the enter key is pressed and change state to play
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_RETURN:
+                    if event.key == pygame.K_SPACE:
                         gamestate = 'play'
                     if event.key == pygame.K_h:
                         gamestate = 'high_scores'
@@ -306,7 +306,7 @@ def run(screen, clock):
             # check for any inputs and restart if r is pressed
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_r:
+                    if event.key == pygame.K_SPACE:
                         running = False
                         run(screen, clock)
                     if event.key == pygame.K_ESCAPE:
@@ -326,7 +326,7 @@ def run(screen, clock):
             disp_results(screen, score)
 
             # restart instructions
-            r_msg = small_font.render("Press \"R\" to restart", True, WHITE)
+            r_msg = small_font.render("Press space to restart", True, WHITE)
             r_msg_rect = r_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/3) * 2 + 100))
             screen.blit(r_msg, r_msg_rect)
 
@@ -339,7 +339,7 @@ def run(screen, clock):
             # check for any inputs and go back if b is pressed
             for event in pygame.event.get():
                 if event.type == pygame.KEYDOWN:
-                    if event.key == pygame.K_b:
+                    if event.key == pygame.K_SPACE:
                         running = False
                         run(screen, clock)
                     if event.key == pygame.K_ESCAPE:
@@ -363,7 +363,7 @@ def run(screen, clock):
             title_rect = title.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 230))
             screen.blit(title, title_rect)
 
-            b_msg = small_font.render("Press \"B\" to go back", True, WHITE)
+            b_msg = small_font.render("Press space to go back", True, WHITE)
             b_msg_rect = b_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) + 200))
             screen.blit(b_msg, b_msg_rect)
 
