@@ -35,16 +35,41 @@ WHITE = (255, 255, 255)
 background = pygame.transform.scale(pygame.image.load('imgs/background.png'), (1157*scale_x, 288*scale_y))
 ground = pygame.transform.scale(pygame.image.load('imgs/ground.png'), (2200*scale_x, 32*scale_y))
 
+# load the medal images
+gold = pygame.transform.scale(pygame.image.load('imgs/gold.png'), (26*scale_x, 30*scale_y))
+silver = pygame.transform.scale(pygame.image.load('imgs/silver.png'), (26*scale_x, 30*scale_y))
+bronze = pygame.transform.scale(pygame.image.load('imgs/bronze.png'), (26*scale_x, 30*scale_y))
+
 # Define our game variables
 BACKGROUND_SCROLL_SPEED = 4
 GROUND_SCROLL_SPEED = 8
 
-# TBC
 def disp_score(screen, score):
     """function will continuously show the score when applicable"""
     value = small_font.render(f"Score: {score}", True, WHITE)
     screen.blit(value, [10, 10])
 
+def disp_results(screen, score):
+    """Function will check the person's score and display the results with the corresponding medal"""
+
+    # check score
+    if score >=  30:
+        medal = pygame.transform.scale(gold, (26*scale_x*4, 30*scale_y*4))
+        medal_rect = medal.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 75))
+        screen.blit(medal, medal_rect)
+    elif score >=  20:
+        medal = pygame.transform.scale(silver, (26*scale_x*4, 30*scale_y*4))
+        medal_rect = medal.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 75))
+        screen.blit(medal, medal_rect)
+    else:
+        medal = pygame.transform.scale(bronze, (26*scale_x*4, 30*scale_y*4))
+        medal_rect = medal.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/2) - 75))
+        screen.blit(medal, medal_rect)
+    
+    # display the score
+    value = medium_font.render(f"You scored {score} points!", True, WHITE)
+    value_rect = value.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/3) * 2 + 30))
+    screen.blit(value, value_rect)    
 
 def run(screen, clock):
     """ This is where the endless while loop with the will run.
@@ -65,7 +90,7 @@ def run(screen, clock):
     last_pipe = pygame.time.get_ticks()
 
     # Add the bird into the sprite group
-    bird_group.add(Bird((WINDOW_WIDTH/3) - (8*scale_x),(WINDOW_HEIGHT/2) - (8*scale_y), scales=[scale_x,scale_y]))
+    bird_group.add(Bird((WINDOW_WIDTH/4) - (8*scale_x),(WINDOW_HEIGHT/2) - (8*scale_y), scales=[scale_x,scale_y]))
 
     # set score var
     score = 0
@@ -223,11 +248,23 @@ def run(screen, clock):
                 if event.type == pygame.QUIT:
                     running = False
                     print('quit')
+            
+            # dim the background
+            s = pygame.Surface((WINDOW_WIDTH,WINDOW_HEIGHT))
+            s.set_alpha(128)
+            s.fill((0,0,0))   
+            screen.blit(s, [0,0])
+            
+            # display the results
+            disp_results(screen, score)
+
+            # restart instructions
+            r_msg = small_font.render("Press \"R\" to restart", True, WHITE)
+            r_msg_rect = r_msg.get_rect(center=(WINDOW_WIDTH/2, (WINDOW_HEIGHT/3) * 2 + 100))
+            screen.blit(r_msg, r_msg_rect)
 
             # stop the background moving backgrounds
             scrolling = False
-
-            disp_score(screen, score)
 
 
 def main():
