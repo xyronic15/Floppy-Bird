@@ -32,3 +32,14 @@ def log_score(score, medal):
         print(f"Successfully logged {score} and {medal} to csv")
     except:
         print("Failed to write")
+
+def save_score(score):
+    """Function will check the person's score and store the results with the corresponding medal"""
+
+    # check score
+    if score >=  20:
+        log_score(score, "gold")
+    elif score < 20 and score >= 10:
+        log_score(score, "silver")
+    elif score < 10:
+        log_score(score, "bronze")
